@@ -20,7 +20,11 @@ function PaletaLista() {
   
     return <div className="PaletaLista">
         {paletas.map((paleta, index) => (
-                <PaletaListaItem key={`PaletaListaItem-${index}`}/>
+                <PaletaListaItem
+                    key={`PaletaListaItem-${index}`}
+                    paleta={paleta}
+                    quantidadeSelecionada={paletaSelecionada[index]}
+                    index={index}/>
                 ))}
            </div>;
   }
