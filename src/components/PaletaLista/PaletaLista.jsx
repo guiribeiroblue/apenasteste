@@ -1,9 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import PaletaListaItem from 'components/PaletaListaItem/PaletaListaItem';
-import { paletas } from "mocks/paletas.js";
+import {PaletaService} from 'services/PaletaService';
+
 import './PaletaLista.css';
 
 function PaletaLista() {
+
+    const [paletas, setPaletas] = useState([]);
 
     const [paletaSelecionada, setPaletaSelecionada] = useState({});
 
@@ -17,6 +20,14 @@ function PaletaLista() {
         setPaletaSelecionada({...paletaSelecionada, ...paleta});
     }
 
+    const getLista = async ()=>{
+        const response = await PaletaService.getLista();
+        setPaletas(response);
+    }
+
+    useEffect(()=>{
+        getLista();
+    },[]);
   
     return <div className="PaletaLista">
         {paletas.map((paleta, index) => (
