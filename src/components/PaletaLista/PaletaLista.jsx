@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PaletaListaItem from 'components/PaletaListaItem/PaletaListaItem';
 import { PaletaService } from 'services/PaletaService';
 import PaletaDetalhesModal from 'components/PaletaDetalhesModal/PaletaDetalhesModal';
 
 import './PaletaLista.css';
 
-function PaletaLista({ paletaCriada }) {
+import { ActionMode } from "constants/index";
+
+function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEditada }) {
 
     const [paletas, setPaletas] = useState([]);
 
@@ -30,25 +32,41 @@ function PaletaLista({ paletaCriada }) {
 
     const getPaletaById = async (paletaId) => {
         const response = await PaletaService.getById(paletaId);
-        setPaletaModal(response);
+        
+        const mapper = {
+            [ActionMode.NORMAL]: () => setPaletaModal(response),
+            [ActionMode.ATUALIZAR]: () => updatePaleta(response),
+            [ActionMode.DELETAR]: () => deletePaleta(response),
+          };
+      
+          mapper[mode]();
     }
 
     useEffect(() => {
         getLista();
-    }, []);
+    }, [paletaEditada]);
 
-    const adicionaPaletaNaLista = (paleta) => {
-        const lista = [...paletas, paleta];
-        setPaletas(lista);
-    };
+    const adicionaPaletaNaLista = useCallback(
+        (paleta) => {
+          const lista = [...paletas, paleta];
+          setPaletas(lista);
+        },
+        [paletas]
+      );
 
     useEffect(() => {
-        if (paletaCriada) adicionaPaletaNaLista(paletaCriada);
-    }, [paletaCriada]);
+        if (
+          paletaCriada &&
+          !paletas.map(({ id }) => id).includes(paletaCriada.id)
+        ) {
+          adicionaPaletaNaLista(paletaCriada);
+        }
+      }, [adicionaPaletaNaLista, paletaCriada, paletas]);
 
     return <div className="PaletaLista">
         {paletas.map((paleta, index) => (
             <PaletaListaItem
+                mode={mode}
                 key={`PaletaListaItem-${index}`}
                 paleta={paleta}
                 quantidadeSelecionada={paletaSelecionada[index]}
