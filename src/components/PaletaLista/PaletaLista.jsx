@@ -7,7 +7,7 @@ import './PaletaLista.css';
 
 import { ActionMode } from "constants/index";
 
-function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEditada }) {
+function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEditada, paletaRemovida }) {
 
     const [paletas, setPaletas] = useState([]);
 
@@ -44,7 +44,7 @@ function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEdi
 
     useEffect(() => {
         getLista();
-    }, [paletaEditada]);
+    }, [paletaEditada, paletaRemovida]);
 
     const adicionaPaletaNaLista = useCallback(
         (paleta) => {
