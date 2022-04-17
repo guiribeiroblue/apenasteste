@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import PaletaListaItem from 'components/PaletaListaItem/PaletaListaItem';
 import { PaletaService } from 'services/PaletaService';
 import PaletaDetalhesModal from 'components/PaletaDetalhesModal/PaletaDetalhesModal';
+import { matchByText } from "helpers/utils";
 
 import './PaletaLista.css';
 
@@ -11,6 +12,7 @@ function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEdi
   const selecionadas = JSON.parse(localStorage.getItem('selecionadas')) ?? {};
 
   const [paletas, setPaletas] = useState([]);
+  const [paletasFiltradas, setPaletasFiltradas] = useState([]);
 
   const [paletaSelecionada, setPaletaSelecionada] = useState(selecionadas);
 
@@ -69,6 +71,12 @@ function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEdi
     },
     [paletas]
   );
+
+  const filtroPorTitulo = ({target}) => {
+    const lista = [...paletas].filter(({titulo}) => matchByText(titulo, target.value))
+    setPaletasFiltradas(lista);
+  }
+
   
   useEffect(() => {
     setSelecionadas();
@@ -81,10 +89,18 @@ function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEdi
     ) {
       adicionaPaletaNaLista(paletaCriada);
     }
+    setPaletasFiltradas(paletas)
   }, [adicionaPaletaNaLista, paletaCriada, paletas]);
 
-  return <div className="PaletaLista">
-    {paletas.map((paleta, index) => (
+  return (
+    <div className="PaletaLista-Wrapper">
+      <input
+        className="PaletaLista-filtro"
+        onChange={filtroPorTitulo}
+        placeholder="Busque uma paleta pelo título" />
+
+      <div className="PaletaLista">
+    {paletasFiltradas.map((paleta, index) => (
       <PaletaListaItem
         mode={mode}
         key={`PaletaListaItem-${index}`}
@@ -96,7 +112,9 @@ function PaletaLista({ paletaCriada, mode, updatePaleta, deletePaleta, paletaEdi
         clickItem={(paletaId) => getPaletaById(paletaId)} />
     ))}
     {paletaModal && <PaletaDetalhesModal paleta={paletaModal} closeModal={() => setPaletaModal(false)} />}
-  </div>;
+  </div>
+    </div>
+  );
 }
 
 export default PaletaLista;
